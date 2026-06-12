@@ -14,6 +14,8 @@ export interface Work {
   year: number;
   register: Register;
   image: Img;
+  /** Cadrage par breakpoint quand le recadrage par défaut trahit l'image. */
+  crop?: string;
 }
 
 // Placeholder partagé pour toutes les images (ton pierre sombre, neutre).
@@ -46,12 +48,17 @@ export const matiere = {
   index: "01",
   title: "Matière",
   // register: stone (clair)
-  statement: "Deux manières de faire une pièce : retirer, ou remplir.",
+  statement: "Deux manières de faire une pièce\u00A0: retirer, ou remplir.",
   paragraphs: [
     "La pierre se soustrait. On retire ce qui cache la forme. Chaque geste est définitif.",
     "Le béton s'ajoute. On construit le vide exact de la pièce, puis on le remplit. La masse prend la place qu'on lui a préparée.",
-    "Le calcaire de Bourgogne s'est déposé il y a cent soixante millions d'années. Installer cette pierre dans une maison, c'est y installer ce temps.",
   ],
+  // Le pic typographique de la section — un seul plan, plein écran.
+  deepTime: {
+    lead: "Le calcaire de Bourgogne s'est déposé il y a",
+    figure: "cent soixante millions d'années",
+    close: "Installer cette pierre dans une maison, c'est y installer ce temps.",
+  },
   image: {
     src: "/images/work-2.jpg",
     alt: "Bloc brut de pierre de Bourgogne, traces de sciage apparentes",
@@ -71,8 +78,8 @@ export const savoirFaire = {
       register: "stone" as Register,
       body: "Tracé au gabarit, dégrossi à la scie, fini à la main. Le bloc perd quatre-vingts pour cent de sa masse. Ce qui reste était déjà là.",
       image: {
-        src: "/images/work-3.jpg",
-        alt: "Taille manuelle d'une vasque, ciseau et massette sur pierre calcaire",
+        src: "/images/work-10.jpg",
+        alt: "Cheminée en béton banché, foyer ouvert dans un volume sombre",
       } satisfies Img,
     },
     {
@@ -86,13 +93,33 @@ export const savoirFaire = {
     },
   ],
   // L'idée Prisonniers de Michel-Ange : la pièce émergeant du bloc.
-  process: {
-    image: {
-      src: "/images/work-5.jpg",
-      alt: "Pièce à demi dégagée de son bloc, état intermédiaire de taille",
-    } satisfies Img,
-    caption: "État intermédiaire — la pièce encore prise dans le bloc",
-  },
+  // Trois plans de chantier, dispersés — du lointain au très proche.
+  cluster: [
+    {
+      depth: "far",
+      image: {
+        src: "/images/work-3.jpg",
+        alt: "Volée d'escalier en béton préfabriqué, marches en porte-à-faux",
+      } satisfies Img,
+      caption: "Volée suspendue — béton préfabriqué",
+    },
+    {
+      depth: "mid",
+      image: {
+        src: "/images/work-2.jpg",
+        alt: "Marches de pierre sciées, escalier suspendu en cours de pose",
+      } satisfies Img,
+      caption: "Marches sciées — pierre de Bourgogne",
+    },
+    {
+      depth: "near",
+      image: {
+        src: "/images/work-4.jpg",
+        alt: "Bord d'une vasque en béton au décoffrage, grain de banche apparent",
+      } satisfies Img,
+      caption: "Décoffrage — grain de banche",
+    },
+  ],
 };
 
 export const oeuvres = {
@@ -109,9 +136,10 @@ export const oeuvres = {
       year: 2024,
       register: "stone",
       image: {
-        src: "/images/work-6.jpg",
-        alt: "Vasque monolithique taillée dans un seul bloc de pierre de Bourgogne",
+        src: "/images/work-7.jpg",
+        alt: "Baignoire taillée dans la masse, marbre de Carrare veiné gris",
       },
+      crop: "lg:object-[65%_75%]",
     },
     {
       title: "Baignoire taillée",
@@ -120,9 +148,10 @@ export const oeuvres = {
       year: 2023,
       register: "stone",
       image: {
-        src: "/images/work-7.jpg",
-        alt: "Baignoire taillée dans la masse, marbre de Carrare veiné gris",
+        src: "/images/work-6.jpg",
+        alt: "Vasque monolithique taillée dans un seul bloc de pierre de Bourgogne",
       },
+      crop: "lg:object-[60%_70%]",
     },
     {
       title: "Escalier suspendu",
@@ -134,6 +163,8 @@ export const oeuvres = {
         src: "/images/work-8.jpg",
         alt: "Escalier en pierre massive, marches encastrées dans un mur porteur",
       },
+      // Portrait mobile : garder le fauteuil et la baie, pas le mur nu.
+      crop: "lg:object-[55%_70%]",
     },
     {
       title: "Vasque coulée",
@@ -145,6 +176,8 @@ export const oeuvres = {
         src: "/images/work-9.jpg",
         alt: "Vasque en béton brut, arêtes vives et surface non traitée",
       },
+      // Panneau large : descendre vers l'escalier et la chaise, pas le plafond.
+      crop: "lg:object-[60%_70%]",
     },
     {
       title: "Cheminée monumentale",
@@ -153,9 +186,10 @@ export const oeuvres = {
       year: 2021,
       register: "concrete",
       image: {
-        src: "/images/work-10.jpg",
-        alt: "Cheminée en béton banché, foyer ouvert dans un volume sombre",
+        src: "/images/work-3.jpg",
+        alt: "Taille manuelle d'une vasque, ciseau et massette sur pierre calcaire",
       },
+      crop: "lg:object-[70%_80%]",
     },
   ] satisfies Work[],
 };

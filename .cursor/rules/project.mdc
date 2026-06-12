@@ -33,7 +33,7 @@ the more distinctive path.
   the hero image only, shared blurDataURL placeholder.
 
 # Typography & layout law
-- Fonts: "Söhne Breit" (display only — never body) and "Suisse Intl"
+- Fonts: "Neue Haas Grotesk" (display only — never body) and "Suisse Intl"
   (everything else), loaded via @font-face from /public/fonts, font-display: swap.
 - Type roles (define as utility classes, use everywhere, never ad-hoc sizes):
   - .text-display: clamp(3.5rem, 9vw, 9rem), lh 0.95, ls -0.02em

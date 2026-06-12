@@ -35,7 +35,7 @@ export function Oeuvres() {
                 </p>
 
                 <div
-                  className={`relative row-start-2 col-span-8 ${
+                  className={`relative row-start-2 col-span-8 overflow-hidden   ${
                     left ? "col-start-1" : "col-start-5"
                   }`}
                   data-anim={work.register === "stone" ? "clip" : "settle"}
@@ -47,12 +47,17 @@ export function Oeuvres() {
                     sizes="(min-width: 1440px) 870px, 61vw"
                     placeholder="blur"
                     blurDataURL={BLUR_DATA_URL}
-                    className="object-cover"
+                    className={`object-cover ${work.crop ?? ""}`}
                   />
                 </div>
 
-                <h3 className="row-start-3 col-span-6 self-end text-h2">{work.title}</h3>
-                <p className="row-start-3 col-span-6 self-end text-right text-meta text-stone-600">
+                <h3 className="row-start-3 col-span-6 self-end text-h2" data-work-title>
+                  {work.title}
+                </h3>
+                <p
+                  className="row-start-3 col-span-6 self-end text-right text-meta text-stone-600"
+                  data-work-meta
+                >
                   {work.material} — {work.project} — {work.year}
                 </p>
               </Container>
@@ -73,7 +78,7 @@ export function Oeuvres() {
       >
         {oeuvres.works.map((work, i) => (
           <article key={work.title} className="w-[82vw] shrink-0 snap-center" data-work>
-            <div className="relative aspect-[4/5]">
+            <div className="relative aspect-[4/5] overflow-hidden">
               <Image
                 src={work.image.src}
                 alt={work.image.alt}
@@ -81,7 +86,7 @@ export function Oeuvres() {
                 sizes="82vw"
                 placeholder="blur"
                 blurDataURL={BLUR_DATA_URL}
-                className="object-cover"
+                className={`object-cover ${work.crop ?? ""}`}
               />
             </div>
             <p className="mt-4 text-meta text-stone-600">

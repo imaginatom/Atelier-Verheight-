@@ -20,7 +20,7 @@ export function Motion({ children }: { children: React.ReactNode }) {
     let lenis: Lenis | undefined;
     let raf: ((time: number) => void) | undefined;
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const l = (lenis = new Lenis({ anchors: true }));
+      const l = (lenis = new Lenis({ anchors: true, wheelMultiplier: 0.9 }));
       l.on("scroll", ScrollTrigger.update);
       raf = (time) => l.raf(time * 1000);
       gsap.ticker.add(raf);
@@ -35,9 +35,14 @@ export function Motion({ children }: { children: React.ReactNode }) {
     document.fonts.ready.then(() => {
       if (cancelled) return;
 
+      // gsap.matchMedia only invokes the handler when a condition MATCHES, so
+      // mobile needs its own query — without it nothing runs below 1024px and
+      // the only animations a phone can ever see are desktop ones reverting
+      // mid-flight at the breakpoint (the hero "scale snap").
       mm.add(
         {
           desktop: "(min-width: 1024px)",
+          mobile: "(max-width: 1023px)",
           reduce: "(prefers-reduced-motion: reduce)",
         },
         (ctx) => {
@@ -49,10 +54,11 @@ export function Motion({ children }: { children: React.ReactNode }) {
               (el) => !el.closest("[data-works]") // the pinned sequence owns its children
             );
 
-          if (!ctx.conditions?.desktop) {
-            // Mobile: no pins, no splits — simple fades only. Elements already
-            // on screen are skipped: hiding them when late JS lands would blank
-            // the hero and re-register LCP at the end of the fade.
+          if (ctx.conditions?.mobile) {
+            // Mobile: no pins, no splits, no parallax — simple fades only. The
+            // hero carries no data-anim hooks, so it never animates here.
+            // Elements already on screen are skipped: hiding them when late JS
+            // lands would blank the view and re-register LCP.
             for (const name of ["lines", "clip", "settle", "fade"]) {
               for (const el of seams(name)) {
                 if (el.getBoundingClientRect().top < window.innerHeight * 0.9) continue;
@@ -72,6 +78,13 @@ export function Motion({ children }: { children: React.ReactNode }) {
           const works = root.querySelector<HTMLElement>("[data-works]");
           if (works) {
             const panels = Array.from(works.querySelectorAll<HTMLElement>("[data-work]"));
+            const imgs = panels.map((p) => p.querySelector<HTMLElement>("[data-anim] img"));
+            const titles = panels.map((p) =>
+              p.querySelector<HTMLElement>("[data-work-title]")
+            );
+            const metas = panels.map((p) =>
+              p.querySelector<HTMLElement>("[data-work-meta]")
+            );
 
             // Collapse the sticky stack into one pinned viewport of layered panels.
             // svh + hidden: Safari's dynamic toolbar makes 100vh overflow the visible
@@ -85,12 +98,31 @@ export function Motion({ children }: { children: React.ReactNode }) {
               right: 0,
               zIndex: (i: number) => i + 1,
             });
+            gsap.set(imgs, { scale: 1.1 }); // headroom for inner drift
 
+            // Work 01 uncovers as the section approaches — once, outside the
+            // scrub — so the pin engages with it fully present and it never
+            // re-hides on scroll-up.
+            const first = panels[0]?.querySelector("[data-anim]");
+            if (first) {
+              gsap.fromTo(
+                first,
+                { clipPath: "inset(100% 0% 0% 0%)" },
+                {
+                  clipPath: "inset(0% 0% 0% 0%)",
+                  duration: 1.4,
+                  ease: "power2.inOut",
+                  scrollTrigger: { trigger: works, start: "top 75%", once: true },
+                }
+              );
+            }
+
+            // 1.5 viewports of scroll per work.
             const tl = gsap.timeline({
               scrollTrigger: {
                 trigger: works,
                 start: "top top",
-                end: () => `+=${panels.length * window.innerHeight}`,
+                end: () => `+=${panels.length * window.innerHeight * 1.2}`,
                 pin: true,
                 pinType: "fixed", // Lenis drives native scroll, so fixed pinning stays in sync
                 anticipatePin: 1,
@@ -98,49 +130,118 @@ export function Motion({ children }: { children: React.ReactNode }) {
               },
             });
 
-            // Work 01 is carved out of the empty panel as the pin engages.
-            const first = panels[0]?.querySelector("[data-anim]");
-            if (first) {
-              tl.fromTo(
-                first,
-                { clipPath: "inset(100% 0% 0% 0%)" },
-                { clipPath: "inset(0% 0% 0% 0%)", duration: 0.5, ease: "power2.inOut" },
-                0
-              );
-            }
-
             panels.forEach((panel, i) => {
-              if (i === 0) return;
               // 1 unit of timeline per work — the gap before each cut is the hold.
-              if (panel.dataset.register === "stone") {
-                // Subtraction: the full panel is uncovered from the bottom, slow.
-                tl.fromTo(
-                  panel,
-                  { clipPath: "inset(100% 0% 0% 0%)" },
-                  { clipPath: "inset(0% 0% 0% 0%)", duration: 0.5, ease: "power2.inOut" },
-                  i
-                );
-              } else {
-                // Addition: the panel arrives as mass — faster, heavier, then settles.
-                tl.fromTo(
-                  panel,
-                  { yPercent: 100 },
-                  { yPercent: 0, duration: 0.32, ease: "power3.out" },
-                  i
-                );
-                const img = panel.querySelector("[data-anim]");
-                if (img) {
+              if (i > 0) {
+                if (panel.dataset.register === "stone") {
+                  // Subtraction: the full panel is uncovered from the bottom, slow.
                   tl.fromTo(
-                    img,
-                    { scale: 1.08 },
-                    { scale: 1, duration: 0.45, ease: "power2.out" },
-                    i + 0.08
+                    panel,
+                    { clipPath: "inset(100% 0% 0% 0%)" },
+                    { clipPath: "inset(0% 0% 0% 0%)", duration: 0.5, ease: "power2.inOut" },
+                    i
                   );
+                } else {
+                  // Addition: the panel arrives as mass — faster, heavier, then settles.
+                  tl.fromTo(
+                    panel,
+                    { yPercent: 100 },
+                    { yPercent: 0, duration: 0.32, ease: "power3.out" },
+                    i
+                  );
+                  const frame = panel.querySelector("[data-anim]");
+                  if (frame) {
+                    tl.fromTo(
+                      frame,
+                      { scale: 1.08 },
+                      { scale: 1, duration: 0.45, ease: "power2.out" },
+                      i + 0.08
+                    );
+                  }
                 }
+              }
+              // Inner drift across each work's hold — life inside the frame.
+              if (imgs[i]) {
+                tl.fromTo(
+                  imgs[i],
+                  { yPercent: -2.5 },
+                  { yPercent: 2.5, duration: 1.4, ease: "none" },
+                  i
+                );
+              }
+              // Title drifts the other way — counterweight to the image.
+              if (titles[i]) {
+                tl.fromTo(
+                  titles[i],
+                  { yPercent: 30 },
+                  { yPercent: -10, duration: 1.4, ease: "none" },
+                  i
+                );
+              }
+              if (metas[i]) {
+                tl.fromTo(
+                  metas[i],
+                  { yPercent: 15 },
+                  { yPercent: -15, duration: 1.4, ease: "none" },
+                  i
+                );
               }
             });
 
-            tl.to({}, { duration: 0.7, ease: "none" }); // last work holds before release
+            // tl.to({}, { duration: 0.7, ease: "none" }); // last work holds before release
+          }
+
+          // — Hero entrance: the page arrives. Lines mask up, the scrim settles,
+          // meta items land in sequence. ~1.5s, once on load.
+          const heroTitle = root.querySelector<HTMLElement>("[data-hero='title']");
+          const heroScrim = root.querySelector<HTMLElement>("[data-hero='scrim']");
+          const heroFade = root.querySelectorAll<HTMLElement>("[data-hero='fade']");
+          if (heroScrim) {
+            gsap.from(heroScrim, { opacity: 0, duration: 1.2, ease: "power2.inOut" });
+          }
+          if (heroTitle) {
+            SplitText.create(heroTitle, {
+              type: "lines",
+              mask: "lines",
+              autoSplit: true,
+              onSplit: (self) =>
+                gsap.from(self.lines, {
+                  yPercent: 110,
+                  duration: 1.1,
+                  stagger: 0.14,
+                  ease: "power3.out",
+                  delay: 0.1,
+                }),
+            });
+          }
+          if (heroFade.length) {
+            gsap.from(heroFade, {
+              opacity: 0,
+              y: 16,
+              duration: 0.6,
+              stagger: 0.08,
+              ease: "power2.out",
+              delay: 0.7,
+            });
+          }
+          // Hero image: held at 1.1, drifting inside its frame as the page leaves.
+          const heroImg = root.querySelector<HTMLElement>("[data-hero='image']");
+          if (heroImg) {
+            gsap.fromTo(
+              heroImg,
+              { yPercent: 0 },
+              {
+                yPercent: 14,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: heroImg.parentElement,
+                  start: "top top",
+                  end: "bottom top",
+                  scrub: true,
+                  
+                },
+              }
+            );
           }
 
           // — Masked line reveals, split after fonts, once on enter.
@@ -194,6 +295,42 @@ export function Motion({ children }: { children: React.ReactNode }) {
               ease: "power2.out",
               scrollTrigger: { trigger: el, start: "top 88%", once: true },
             });
+          }
+
+          // — Image life: every clipped frame holds its image at 1.1, drifting
+          // slowly inside the mask on scroll. Moves within the frame, never out.
+          for (const frame of [...seams("clip"), ...seams("settle")]) {
+            const img = frame.querySelector("img");
+            if (!img) continue;
+            gsap.set(img, { scale: 1.1 });
+            gsap.fromTo(
+              img,
+              { yPercent: -3 },
+              {
+                yPercent: 3,
+                ease: "none",
+                scrollTrigger: { trigger: frame, start: "top bottom", end: "bottom top", scrub: true },
+              }
+            );
+          }
+
+          // — The process cluster: three depths, three speeds. Far barely moves,
+          // near presses forward. The one multi-speed parallax on the site.
+          const cluster = root.querySelector<HTMLElement>("[data-cluster]");
+          if (cluster) {
+            const speed = { far: -40, mid: -100, near: -180 };
+            for (const el of cluster.querySelectorAll<HTMLElement>("[data-depth]")) {
+              gsap.to(el, {
+                y: speed[el.dataset.depth as keyof typeof speed],
+                ease: "none",
+                scrollTrigger: {
+                  trigger: cluster,
+                  start: "top bottom",
+                  end: "bottom top",
+                  scrub: true,
+                },
+              });
+            }
           }
         }
       );

@@ -35,9 +35,9 @@ export default function RootLayout({
             swap, so these must win the first round-trips. */}
         <link
           rel="preload"
-          href="/fonts/soehne-breit-buch.otf"
+          href="/fonts/Neue%20Haas%20Grotesk/NeueHaasDisplay-Roman.woff2"
           as="font"
-          type="font/otf"
+          type="font/woff2"
           crossOrigin="anonymous"
         />
         <link

@@ -78,7 +78,7 @@ export const savoirFaire = {
       register: "stone" as Register,
       body: "Tracé au gabarit, dégrossi à la scie, fini à la main. Le bloc perd quatre-vingts pour cent de sa masse. Ce qui reste était déjà là.",
       image: {
-        src: "/images/work-10.jpg",
+        src: "/images/work-4.jpg",
         alt: "Cheminée en béton banché, foyer ouvert dans un volume sombre",
       } satisfies Img,
     },
@@ -87,7 +87,7 @@ export const savoirFaire = {
       register: "concrete" as Register,
       body: "Le coffrage est l'inverse exact de la pièce. Quarante-huit heures de prise. Le décoffrage ne pardonne rien.",
       image: {
-        src: "/images/work-4.jpg",
+        src: "/images/work-10.jpg",
         alt: "Décoffrage d'une vasque en béton, surface brute marquée par la banche",
       } satisfies Img,
     },
@@ -137,7 +137,7 @@ export const oeuvres = {
       register: "stone",
       image: {
         src: "/images/work-7.jpg",
-        alt: "Baignoire taillée dans la masse, marbre de Carrare veiné gris",
+        alt: "Vasque monolithique taillée dans un seul bloc de pierre de Bourgogne",
       },
       crop: "lg:object-[65%_75%]",
     },
@@ -149,7 +149,7 @@ export const oeuvres = {
       register: "stone",
       image: {
         src: "/images/work-6.jpg",
-        alt: "Vasque monolithique taillée dans un seul bloc de pierre de Bourgogne",
+        alt: "Baignoire taillée dans la masse, marbre de Carrare veiné gris",
       },
       crop: "lg:object-[60%_70%]",
     },

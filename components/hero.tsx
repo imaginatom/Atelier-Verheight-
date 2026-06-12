@@ -7,22 +7,24 @@ import { hero, BLUR_DATA_URL } from "@/lib/content";
 export function Hero() {
   return (
     <section
-      className="relative h-svh overflow-hidden bg-stone-950 text-stone-50"
+      className="relative h-hero overflow-hidden bg-stone-950 text-stone-50 lg:h-svh"
       data-register="concrete"
     >
-      <Image
-        src={hero.image.src}
-        alt={hero.image.alt}
-        fill
-        preload
-        sizes="100vw"
-        placeholder="blur"
-        blurDataURL={BLUR_DATA_URL}
-        className="object-cover"
-        data-hero="image"
-      />
-      {/* Flat scrim — keeps type legible without a gradient */}
-      <div aria-hidden className="absolute inset-0 bg-stone-950/45" data-hero="scrim" />
+      <div className="absolute inset-0 overflow-hidden">
+        <Image
+          src={hero.image.src}
+          alt={hero.image.alt}
+          fill
+          preload
+          sizes="100vw"
+          placeholder="blur"
+          blurDataURL={BLUR_DATA_URL}
+          className="scale-110 object-cover"
+          data-hero="image"
+        />
+        {/* Flat scrim — keeps type legible without a gradient */}
+        <div aria-hidden className="absolute inset-0 bg-stone-950/45" data-hero="scrim" />
+      </div>
 
       <Container className="relative h-full grid-rows-[auto_auto_1fr] gap-y-8 pt-32 pb-8 lg:pb-16">
         <p className="col-span-10 max-w-[36ch] text-body lg:col-span-4" data-hero="fade">

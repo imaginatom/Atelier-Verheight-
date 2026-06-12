@@ -79,6 +79,13 @@ html.lenis body {
   }
 }
 
+/* Locked on load via --vh in motion.tsx — stops mobile toolbar resize from
+   re-cropping object-cover heroes. Falls back to lvh before JS runs. */
+@utility h-hero {
+  height: 100lvh;
+  height: calc(var(--vh, 1lvh) * 100);
+}
+
 /* Type roles — the only sizes that exist */
 @utility text-display {
   font-family: var(--font-display);

@@ -16,6 +16,16 @@ export function Motion({ children }: { children: React.ReactNode }) {
   const scope = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
+    // Lock viewport height once — mobile URL bar show/hide won't resize heroes.
+    const setVh = () => {
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`,
+      );
+    };
+    setVh();
+    window.addEventListener("orientationchange", setVh);
+
     // One clock: Lenis runs on gsap's ticker, ScrollTrigger reads Lenis.
     let lenis: Lenis | undefined;
     let raf: ((time: number) => void) | undefined;
@@ -338,6 +348,7 @@ export function Motion({ children }: { children: React.ReactNode }) {
 
     return () => {
       cancelled = true;
+      window.removeEventListener("orientationchange", setVh);
       mm.revert();
       if (raf) gsap.ticker.remove(raf);
       lenis?.destroy();

@@ -50,24 +50,49 @@ export function Matiere() {
         </p>
       </Container>
 
-      {/* Le pic typographique — one full-viewport frame, severe and centered */}
-      <Container className="min-h-svh content-center gap-y-0 py-32">
-        <p className="col-span-12 text-center text-meta text-stone-600" data-anim="fade">
-          {matiere.deepTime.lead}
-        </p>
-        <p className="col-span-12 mt-10 text-center text-display" data-anim="lines">
-          {matiere.deepTime.figure}
-        </p>
-      </Container>
-
-      <Container className="gap-y-0 pb-32 lg:pb-48">
-        <p
-          className="col-span-12 text-body lg:col-span-4 lg:col-start-8"
-          data-anim="fade"
-        >
-          {matiere.deepTime.close}
-        </p>
-      </Container>
+      {/* Le pic typographique — full-bleed backdrop, content in grid */}
+      <div
+        className="relative mt-32 min-h-[84svh] overflow-hidden lg:mt-56 lg:min-h-[88svh]"
+        data-scrub-video
+      >
+        <div className="pointer-events-none absolute inset-0">
+          {/* Desktop : le calcaire défile au scroll. Mobile : le bloc reste fixe. */}
+          <video
+            src="/videos/limestone.mp4"
+            poster={matiere.backdrop.src}
+            muted
+            playsInline
+            preload="auto"
+            className="hidden h-full w-full object-cover object-center lg:block"
+          />
+          <Image
+            src={matiere.backdrop.src}
+            alt={matiere.backdrop.alt}
+            fill
+            sizes="100vw"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
+            className="object-cover object-center lg:hidden"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-stone-50/99 via-stone-50/72 to-stone-50/38" />
+        </div>
+        <Container className="relative z-10 content-center gap-y-0 py-32 lg:py-48">
+          <div className="col-span-12">
+            <p className="text-center text-meta text-stone-700" data-anim="fade">
+              {matiere.deepTime.lead}
+            </p>
+            <p className="mt-10 text-center text-display" data-anim="lines">
+              {matiere.deepTime.figure}
+            </p>
+            <p
+              className="mx-auto mt-12 max-w-[38ch] text-center text-body text-stone-800"
+              data-anim="fade"
+            >
+              {matiere.deepTime.close}
+            </p>
+          </div>
+        </Container>
+      </div>
     </section>
   );
 }

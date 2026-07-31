@@ -88,13 +88,6 @@ export function Motion({ children }: { children: React.ReactNode }) {
           const works = root.querySelector<HTMLElement>("[data-works]");
           if (works) {
             const panels = Array.from(works.querySelectorAll<HTMLElement>("[data-work]"));
-            const imgs = panels.map((p) => p.querySelector<HTMLElement>("[data-anim] img"));
-            const titles = panels.map((p) =>
-              p.querySelector<HTMLElement>("[data-work-title]")
-            );
-            const metas = panels.map((p) =>
-              p.querySelector<HTMLElement>("[data-work-meta]")
-            );
 
             // Collapse the sticky stack into one pinned viewport of layered panels.
             // svh + hidden: Safari's dynamic toolbar makes 100vh overflow the visible
@@ -108,7 +101,6 @@ export function Motion({ children }: { children: React.ReactNode }) {
               right: 0,
               zIndex: (i: number) => i + 1,
             });
-            gsap.set(imgs, { scale: 1.1 }); // headroom for inner drift
 
             // Work 01 uncovers as the section approaches — once, outside the
             // scrub — so the pin engages with it fully present and it never
@@ -170,32 +162,6 @@ export function Motion({ children }: { children: React.ReactNode }) {
                   }
                 }
               }
-              // Inner drift across each work's hold — life inside the frame.
-              if (imgs[i]) {
-                tl.fromTo(
-                  imgs[i],
-                  { yPercent: -2.5 },
-                  { yPercent: 2.5, duration: 1.4, ease: "none" },
-                  i
-                );
-              }
-              // Title drifts the other way — counterweight to the image.
-              if (titles[i]) {
-                tl.fromTo(
-                  titles[i],
-                  { yPercent: 30 },
-                  { yPercent: -10, duration: 1.4, ease: "none" },
-                  i
-                );
-              }
-              if (metas[i]) {
-                tl.fromTo(
-                  metas[i],
-                  { yPercent: 15 },
-                  { yPercent: -15, duration: 1.4, ease: "none" },
-                  i
-                );
-              }
             });
 
             // tl.to({}, { duration: 0.7, ease: "none" }); // last work holds before release
@@ -252,6 +218,38 @@ export function Motion({ children }: { children: React.ReactNode }) {
                 },
               }
             );
+          }
+
+          // — Matière: le calcaire est piloté par le scroll, pas lu en continu.
+          // Rythme fixe — 3 s de vidéo consommées tous les 100vh. Desktop seul ;
+          // mobile et reduce gardent l'image fixe (poster).
+          const backdrop = root.querySelector<HTMLElement>("[data-scrub-video]");
+          const video = backdrop?.querySelector("video");
+          if (backdrop && video) {
+            video.pause();
+            let built = false;
+            const build = () => {
+              // Certains mp4 annoncent une durée Infinity tant qu'ils ne sont pas
+              // bufferisés — sans durée finie, le seek est invalide et rien ne bouge.
+              if (built || !Number.isFinite(video.duration) || video.duration === 0)
+                return;
+              built = true;
+              const SECONDS_PER_VH = 3; // 3 s de vidéo par 100vh de scroll
+              ScrollTrigger.create({
+                trigger: backdrop,
+                start: "top bottom",
+                end: () =>
+                  `+=${(video.duration / SECONDS_PER_VH) * window.innerHeight}`,
+                scrub: true,
+                onUpdate: (self) => {
+                  video.currentTime = self.progress * video.duration;
+                },
+              });
+              ScrollTrigger.refresh();
+            };
+            build();
+            video.addEventListener("loadedmetadata", build);
+            video.addEventListener("durationchange", build);
           }
 
           // — Masked line reveals, split after fonts, once on enter.

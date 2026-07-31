@@ -60,10 +60,15 @@ export const matiere = {
     close: "Installer cette pierre dans une maison, c'est y installer ce temps.",
   },
   image: {
-    src: "/images/work-2.jpg",
+    src: "/images/stone-living-room.jpg",
     alt: "Bloc brut de pierre de Bourgogne, traces de sciage apparentes",
   } satisfies Img,
   imageCaption: "Bloc brut — carrière de Comblanchien, Côte-d'Or",
+  // Fond du pic typographique — la pierre posée, vécue dans un intérieur.
+  backdrop: {
+    src: "/images/limestone.png",
+    alt: "Séjour aux murs de pierre calcaire, lumière rasante sur la matière",
+  } satisfies Img,
 };
 
 export const savoirFaire = {
@@ -98,7 +103,7 @@ export const savoirFaire = {
     {
       depth: "far",
       image: {
-        src: "/images/work-3.jpg",
+        src: "/images/volée-suspendue.jpg",
         alt: "Volée d'escalier en béton préfabriqué, marches en porte-à-faux",
       } satisfies Img,
       caption: "Volée suspendue — béton préfabriqué",
@@ -114,10 +119,10 @@ export const savoirFaire = {
     {
       depth: "near",
       image: {
-        src: "/images/work-4.jpg",
-        alt: "Bord d'une vasque en béton au décoffrage, grain de banche apparent",
+        src: "/images/work-5.jpg",
+        alt: "Salle de bain en béton, vasque et baignoire taillées dans la masse, lumière rasante",
       } satisfies Img,
-      caption: "Décoffrage — grain de banche",
+      caption: "Pièce posée — béton brut",
     },
   ],
 };
